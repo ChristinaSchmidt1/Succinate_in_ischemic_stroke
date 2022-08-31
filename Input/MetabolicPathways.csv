@@ -1,0 +1,282 @@
+Metabolite,Pathway
+1-methylhistidine,amino acid and conjugate
+1-methylnicotinamide,No_pathway_assigned
+2-aminocaprylate,No_pathway_assigned
+2-aminoheptanoate,No_pathway_assigned
+2-hydroxyglutarate,No_pathway_assigned
+2/3-phosphoglycerate,No_pathway_assigned
+3-methylhistidine,amino acid and conjugate
+4-aminobutyrate,No_pathway_assigned
+4-guanidinobutanoate,amino acid and conjugate
+4-hydroxyphenyllactate,No_pathway_assigned
+4-hydroxyproline,No_pathway_assigned
+4-pyridoxate,No_pathway_assigned
+5-aminopentanoate,No_pathway_assigned
+acetylcholine,No_pathway_assigned
+acetylphosphate,No_pathway_assigned
+aconitate,No_pathway_assigned
+adenine,purine metabolism
+adenosine,purine metabolism
+adenylosuccinate,purine metabolism
+ADP,nucleotides
+ADP-hexose,No_pathway_assigned
+ADP-ribose,nucleotides
+AICAR,purine metabolism
+alanine,No_pathway_assigned
+alpha-ketoglutarate,TCA cycle
+aminoadipate,amino acid and conjugate
+AMP,nucleotides
+anserine,amino acid and conjugate
+arginine,amino acid and conjugate
+argininosuccinate,amino acid and conjugate
+asparagine,amino acid and conjugate
+aspartate,No_pathway_assigned
+ATP,nucleotides
+beta-citrylglutamate,No_pathway_assigned
+betaine,No_pathway_assigned
+biotin,No_pathway_assigned
+c12:0,Fatty acid metabolism
+c14:0,Fatty acid metabolism
+c16:0,Fatty acid metabolism
+c16:1,Fatty acid metabolism
+c18:0,Fatty acid metabolism
+c18:1,Fatty acid metabolism
+c18:2,Fatty acid metabolism
+c18:3,Fatty acid metabolism
+c20:1,Fatty acid metabolism
+c20:2,Fatty acid metabolism
+c20:3,Fatty acid metabolism
+c20:4,Fatty acid metabolism
+c22:4,Fatty acid metabolism
+c22:5,Fatty acid metabolism
+c22:6,Fatty acid metabolism
+carbamoylphosphate,pyrimidine metabolism
+carnitine,Carnitine metabolism
+carnitine C10,Carnitine metabolism
+carnitine C12,Carnitine metabolism
+carnitine C14,Carnitine metabolism
+carnitine C14:1,Carnitine metabolism
+carnitine C16,Carnitine metabolism
+carnitine C16:1,Carnitine metabolism
+carnitine C18,Carnitine metabolism
+carnitine C18:1,Carnitine metabolism
+carnitine C18:2,Carnitine metabolism
+carnitine C2,Carnitine metabolism
+carnitine C3,Carnitine metabolism
+carnitine C3-DC,Carnitine metabolism
+carnitine C4,Carnitine metabolism
+carnitine C4-DC,Carnitine metabolism
+carnitine C4-OH,Carnitine metabolism
+carnitine C5,Carnitine metabolism
+carnitine C5-DC,Carnitine metabolism
+carnitine C5-OH,Carnitine metabolism
+carnitine C6,Carnitine metabolism
+carnitine C8,Carnitine metabolism
+carnosine,amino acid and conjugate
+CDP,No_pathway_assigned
+CDP-ethanolamine,nucleotides
+cholestenone,No_pathway_assigned
+choline,No_pathway_assigned
+citicoline,nucleotides
+citrate/isocitrate,No_pathway_assigned
+citrulline,amino acid and conjugate
+CMP,nucleotides
+CMP-N-acetylneuraminate,No_pathway_assigned
+creatine,amino acid and conjugate
+creatinine,No_pathway_assigned
+cyclic ADP-ribose,nucleotides
+cyclic AMP,nucleotides
+cystathionine,No_pathway_assigned
+cysteinylglycine,No_pathway_assigned
+cystine,No_pathway_assigned
+cytidine,pyrimidine metabolism
+cytosine,pyrimidine metabolism
+deoxycarnitine,Carnitine metabolism
+deoxycytidine,pyrimidine metabolism
+deoxyuridine,pyrimidine metabolism
+dihydrobiopterin,No_pathway_assigned
+dihydroorotate,pyrimidine metabolism
+dihydroxyacetone phosphate,glycolysis and PPP
+dimethylarginine,No_pathway_assigned
+dipalmitoylphosphatidylcholine,No_pathway_assigned
+ergothioneine,Xenobiotics
+erythritol,No_pathway_assigned
+ethanolamine phosphate,No_pathway_assigned
+fumarate,TCA cycle
+gamma-glutamylcysteine,amino acid and conjugate
+gamma-glutamylglutamate,No_pathway_assigned
+gamma-glutamylglutamine,No_pathway_assigned
+GDP,nucleotides
+GDP-hexose,No_pathway_assigned
+gluconate,No_pathway_assigned
+glutamate,amino acid and conjugate
+glutamine,amino acid and conjugate
+glutathione reduced,redox homeostasis
+glyceraldehyde,No_pathway_assigned
+glyceraldehyde 3-phosphate,glycolysis and PPP
+glycerate,No_pathway_assigned
+glycerol,No_pathway_assigned
+glycerol 2-phosphate,No_pathway_assigned
+glycerol 3-phosphate,glycolysis and PPP
+glycerylphosphorylcholine,No_pathway_assigned
+glycine,amino acid and conjugate
+glycylglycine,No_pathway_assigned
+GMP,nucleotides
+guanidinoacetate,amino acid and conjugate
+guanidinosuccinate,No_pathway_assigned
+guanine,purine metabolism
+guanosine,purine metabolism
+hexose phosphates,No_pathway_assigned
+hippurate,Xenobiotics
+histidine,amino acid and conjugate
+homoarginine,No_pathway_assigned
+hypotaurine,amino acid and conjugate
+hypoxanthine,purine metabolism
+IMP,nucleotides
+indole,No_pathway_assigned
+Indole-3-lactate,No_pathway_assigned
+indoxyl sulfate,No_pathway_assigned
+inosine,purine metabolism
+isoleucine,amino acid and conjugate
+kynurenine,amino acid and conjugate
+lactate,glycolysis and PPP
+leucine,amino acid and conjugate
+lysine,amino acid and conjugate
+malate,TCA cycle
+malonate,No_pathway_assigned
+methionine,amino acid and conjugate
+methylhistamine,No_pathway_assigned
+mevalonate 5-pyrophosphate,No_pathway_assigned
+N-acetyl(leucine/isoleucine),No_pathway_assigned
+N-acetylalanine,No_pathway_assigned
+N-acetylasparagine,amino acid and conjugate
+N-acetylaspartate,amino acid and conjugate
+N-acetylaspartylglutamate,amino acid and conjugate
+N-acetylcysteine,amino acid and conjugate
+N-acetylglutamate,amino acid and conjugate
+N-acetylglutamine,amino acid and conjugate
+N-acetylhexosamine,No_pathway_assigned
+N-acetylhexosamine phosphate,No_pathway_assigned
+N-acetylhistidine,amino acid and conjugate
+N-acetylmethionine,amino acid and conjugate
+N-acetylneuraminate,No_pathway_assigned
+N-acetylputrescine,No_pathway_assigned
+N-acetylserine,amino acid and conjugate
+N-carbamoylaspartate,pyrimidine metabolism
+N-formylmethionine,amino acid and conjugate
+N2-acetylornithine,amino acid and conjugate
+N6-methyllysine,No_pathway_assigned
+"N6,N6,N6-trimethyllysine",amino acid and conjugate
+NAD,redox homeostasis
+NADH,redox homeostasis
+NADP,No_pathway_assigned
+NADPH,No_pathway_assigned
+nicotinamide,No_pathway_assigned
+nicotinamide mononucleotide,No_pathway_assigned
+nicotinamide riboside,No_pathway_assigned
+O-succinylhomoserine,amino acid and conjugate
+ophthalmate,redox homeostasis
+ornithine,No_pathway_assigned
+orotate,pyrimidine metabolism
+orotidine,pyrimidine metabolism
+oxidized glutathione,redox homeostasis
+palmitoylethanolamide,No_pathway_assigned
+pantothenate,No_pathway_assigned
+pentose phosphates,No_pathway_assigned
+phenol sulfate,No_pathway_assigned
+phenylalanine,amino acid and conjugate
+phosphocreatine,No_pathway_assigned
+phosphoenolpyruvate,glycolysis and PPP
+phosphorylcholine,No_pathway_assigned
+proline,amino acid and conjugate
+pyroglutamate,amino acid and conjugate
+raffinose,No_pathway_assigned
+ribitol,No_pathway_assigned
+riboflavin,No_pathway_assigned
+ribothymidine,No_pathway_assigned
+S-(2-succinyl)cysteine,redox homeostasis
+S-adenosylhomocysteine,amino acid and conjugate
+S-adenosylmethionine,amino acid and conjugate
+S-lactoylglutathione,glycolysis and PPP
+S-methylcysteine,amino acid and conjugate
+saccharopine,No_pathway_assigned
+sarcosine,amino acid and conjugate
+sedoheptulose 7-phosphate,glycolysis and PPP
+serine,amino acid and conjugate
+serotonin,No_pathway_assigned
+sphingomyelin,No_pathway_assigned
+succinate,TCA cycle
+succinyladenosine,purine metabolism
+succinylglutathione,redox homeostasis
+taurine,amino acid and conjugate
+thiamine,No_pathway_assigned
+thiamine pyrophosphate,No_pathway_assigned
+threonine,amino acid and conjugate
+tricarballylate,No_pathway_assigned
+trimethylamine N-oxide,No_pathway_assigned
+tryptophan,No_pathway_assigned
+tyrosine,amino acid and conjugate
+UDP,nucleotides
+UDP-GlcNac,No_pathway_assigned
+UDP-glucose,nucleotides
+UDP-glucuronate,nucleotides
+UMP,nucleotides
+uracil,pyrimidine metabolism
+urate,purine metabolism
+uridine,pyrimidine metabolism
+UTP,No_pathway_assigned
+valine,amino acid and conjugate
+xanthine,purine metabolism
+xanthosine,purine metabolism
+xanthosine monophosphate,nucleotides
+4-imidazolone-5-propionate,No_pathway_assigned
+5-aminoimidazole ribotide,No_pathway_assigned
+5-hydroxyindoleacetate,No_pathway_assigned
+5-hydroxytryptophan,No_pathway_assigned
+6-phosphogluconate,No_pathway_assigned
+acetyl-CoA,TCA cycle
+allantoin,No_pathway_assigned
+beta-alanine,amino acid and conjugate
+biliverdin,No_pathway_assigned
+c22:1,No_pathway_assigned
+chenodeoxycholate,No_pathway_assigned
+cholate,No_pathway_assigned
+Coenzyme A,No_pathway_assigned
+cotinine,No_pathway_assigned
+CTP,No_pathway_assigned
+cyclic GMP,No_pathway_assigned
+deoxyadenosine,purine metabolism
+deoxycholate,No_pathway_assigned
+dihydrouracil,pyrimidine metabolism
+dTMP,nucleotides
+FAD,redox homeostasis
+formiminoglutamate,No_pathway_assigned
+glucosamine 6-phosphate,No_pathway_assigned
+GTP,No_pathway_assigned
+histamine,No_pathway_assigned
+histidinol,No_pathway_assigned
+homoserine,amino acid and conjugate
+hyocholate,No_pathway_assigned
+hyodeoxycholate,No_pathway_assigned
+Indole-3-propionate,No_pathway_assigned
+indole-3-pyruvate,No_pathway_assigned
+methionine sulfoxide,amino acid and conjugate
+N-acetylphenylalanine,amino acid and conjugate
+N-acetylthreonine,No_pathway_assigned
+N-acetyltyrosine,No_pathway_assigned
+N-alpha-acetyllysine,amino acid and conjugate
+N6-acetyllysine,amino acid and conjugate
+phenylacetylglycine,No_pathway_assigned
+phenyllactate,No_pathway_assigned
+pipecolate,No_pathway_assigned
+purine,No_pathway_assigned
+pyridoxal,No_pathway_assigned
+pyridoxine,No_pathway_assigned
+S-allylcysteine,No_pathway_assigned
+stearoylethanolamide,No_pathway_assigned
+taurocholate,No_pathway_assigned
+thiamine monophosphate,No_pathway_assigned
+thymidine,No_pathway_assigned
+thymine,No_pathway_assigned
+thyrotropin releasing hormone,No_pathway_assigned
+ureidopropionate,No_pathway_assigned
