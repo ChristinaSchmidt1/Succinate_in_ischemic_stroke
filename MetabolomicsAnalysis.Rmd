@@ -54,6 +54,436 @@ Data_TIC <- cbind(rownames(Data_TIC), data.frame(Data_TIC, row.names=NULL, check
 }
 ```
 
+```{r Muma, warning= FALSE, message=FALSE}
+#These functions correspond to the muma package which can be found on GitHub (https://github.com/cran/muma/tree/master/R)
+#Since the package has not been updated in a while it can not be installed with the newest bioconductor version 3.1 and R version 4.2.0
+#Therefore, we have extracted the two main function of the package we use for the outlier detection
+#In explore.data and Plot.pca.score we added the @parameter "path"
+
+explore.data <- function (file, path, scaling, scal = TRUE, normalize = TRUE, imputation = FALSE, imput) {
+    comp = read.csv(file, sep = ",", header = TRUE)
+    comp.x = comp[, 3:ncol(comp)]
+    comp.x = cbind(comp[, 2], comp[, 1], comp.x)
+    x <- comp.x
+    x.x <- x[, 3:ncol(x)]
+    rownames(x.x) <- x[, 2]
+    if (!scal) {
+        scaling = ""
+    }
+    dirout = paste(getwd(), path, "/Preprocessing_Data_", scaling, 
+        "/", sep = "")
+    dir.create(dirout)
+    if (imputation) {
+        y = x.x
+        r = is.na(y)
+        for (k in 1:ncol(r)) {
+            vec = matrix(r[, k], ncol = 1)
+            who.miss.rows = which(apply(vec, 1, function(i) {
+                any(i)
+            }))
+            if (length(who.miss.rows) > nrow(y) * 0.8) {
+                warning(paste("The variable -", colnames(y)[k], 
+                  "- has a number of missing values > 80%, therefore has been eliminated", 
+                  sep = " "))
+                y = y[, -k]
+            }
+        }
+        r = is.na(y)
+        who.miss.columns = c()
+        for (i in 1:nrow(y)) {
+            for (j in 1:ncol(y)) {
+                if (r[i, j] == TRUE) {
+                  if (imput == "mean") {
+                    v2 = matrix(r[, j], ncol = 1)
+                    who.miss.rows = which(apply(v2, 1, function(i) {
+                      any(i)
+                    }))
+                    y[i, j] = mean(y[-who.miss.rows, j])
+                    print(paste("Imputing missing value of variable -", 
+                      colnames(y)[j], "- for the observation -", 
+                      rownames(y)[i], "- with", imput, "value", 
+                      sep = " "))
+                  }
+                  else if (imput == "minimum") {
+                    v2 = matrix(r[, j], ncol = 1)
+                    who.miss.rows = which(apply(v2, 1, function(i) {
+                      any(i)
+                    }))
+                    y[i, j] = min(y[-who.miss.rows, j])
+                    print(paste("Imputing missing value of variable -", 
+                      colnames(y)[j], "- for the observation -", 
+                      rownames(y)[i], "- with", imput, "value", 
+                      sep = " "))
+                  }
+                  else if (imput == "half.minimum") {
+                    v2 = matrix(r[, j], ncol = 1)
+                    who.miss.rows = which(apply(v2, 1, function(i) {
+                      any(i)
+                    }))
+                    y[i, j] = min(y[-who.miss.rows, j])/2
+                    print(paste("Imputing missing value of variable -", 
+                      colnames(y)[j], "- for the observation -", 
+                      rownames(y)[i], "- with", imput, "value", 
+                      sep = " "))
+                  }
+                  else if (imput == "zero") {
+                    v2 = matrix(r[, j], ncol = 1)
+                    who.miss.rows = which(apply(v2, 1, function(i) {
+                      any(i)
+                    }))
+                    y[i, j] = 0
+                    print(paste("Imputing missing value of variable -", 
+                      colnames(y)[j], "- for the observation -", 
+                      rownames(y)[i], "- with", imput, "value", 
+                      sep = " "))
+                  }
+                }
+            }
+        }
+        pwdi = paste(getwd(), path, "/Preprocessing_Data_", scaling, 
+            "/ImputedMatrix.csv", sep = "")
+        write.csv(y, pwdi)
+        x.x = y
+    }
+    for (i in 1:nrow(x.x)) {
+		for (j in 1:ncol(x.x)) {
+			if (x.x[i,j] <= 0) {
+				x.x[i,j] = runif(1, 0, 0.0000000001)
+			}
+		}
+	}
+
+    	x.x = cbind(comp[,2], x.x)
+	write.csv(x.x, paste(dirout, "CorrectedTable.csv", sep = ""))
+    
+	pwd.c = paste(getwd(), path, "/Preprocessing_Data_", scaling, "/CorrectedTable.csv", 
+        sep = "")
+    x <- read.csv(pwd.c, sep = ",", header = TRUE)
+    x.x <- x[, 3:ncol(x)]
+    rownames(x.x) <- x[, 1]
+	k = matrix(x[,2], ncol=1)
+    if (normalize) {
+        x.t <- t(x.x)
+        x.s <- matrix(colSums(x.t), nrow = 1)
+        uni = matrix(rep(1, nrow(x.t)), ncol = 1)
+        area.uni <- uni %*% x.s
+        x.areanorm <- x.t/area.uni
+        x.areanorm = t(x.areanorm)
+        write.csv(x.areanorm, paste(dirout, "/ProcessedTable.csv", 
+            sep = ""))
+    }
+    else {
+        write.csv(x.x, paste(dirout, "/ProcessedTable.csv", sep = ""))
+    }
+    if (scal) {
+        if (scaling == "Pareto" | scaling == "pareto" | scaling == 
+            "P" | scaling == "p") {
+            pwd.n = paste(getwd(), path, "/Preprocessing_Data_", scaling, 
+                "/ProcessedTable.csv", sep = "")
+            x <- read.csv(pwd.n, sep = ",", header = TRUE)
+            x.x <- x[, 2:ncol(x)]
+            rownames(x.x) <- x[, 1]
+            x.areanorm.tc <- scale(x.x, center = TRUE, scale = FALSE)
+            all.sd <- matrix(apply(x.areanorm.tc, 2, sd), nrow = 1)
+            uni.exp.all = matrix(rep(1, nrow(x.areanorm.tc)), 
+                ncol = 1)
+            all.sdm = uni.exp.all %*% all.sd
+            all.sqsd = sqrt(all.sdm)
+            all.pareto <- x.areanorm.tc/all.sqsd
+            write.csv(all.pareto, paste(dirout, "/ProcessedTable.csv", 
+                sep = ""))
+        }
+        else if (scaling == "Auto" | scaling == "auto" | scaling == 
+            "A" | scaling == "a") {
+            pwd.n = paste(getwd(), path, "/Preprocessing_Data_", scaling, 
+                "/ProcessedTable.csv", sep = "")
+            x <- read.csv(pwd.n, sep = ",", header = TRUE)
+            x.x <- x[, 2:ncol(x)]
+            rownames(x.x) <- x[, 1]
+            x.areanorm.tc <- scale(x.x, center = TRUE, scale = FALSE)
+            all.sd <- matrix(apply(x.areanorm.tc, 2, sd), nrow = 1)
+            uni.exp.all = matrix(rep(1, nrow(x.areanorm.tc)), 
+                ncol = 1)
+            all.sdm = uni.exp.all %*% all.sd
+            all.auto <- x.areanorm.tc/all.sdm
+            write.csv(all.auto, paste(dirout, "/ProcessedTable.csv", 
+                sep = ""))
+        }
+        else if (scaling == "Vast" | scaling == "vast" | scaling == 
+            "V" | scaling == "v") {
+            pwd.n = paste(getwd(), path, "/Preprocessing_Data_", scaling, 
+                "/ProcessedTable.csv", sep = "")
+            x <- read.csv(pwd.n, sep = ",", header = TRUE)
+            x.x <- x[, 2:ncol(x)]
+            rownames(x.x) <- x[, 1]
+            x.areanorm.tc <- scale(x.x, center = TRUE, scale = FALSE)
+            all.sd <- matrix(apply(x.areanorm.tc, 2, sd), nrow = 1)
+            uni.exp.all = matrix(rep(1, nrow(x.areanorm.tc)), 
+                ncol = 1)
+            all.sdm = uni.exp.all %*% all.sd
+            sdm2 = all.sdm^2
+            colm = matrix(colMeans(x.x), nrow = 1)
+            colm.m = uni.exp.all %*% colm
+            num = x.areanorm.tc * colm.m
+            vast = num/sdm2
+            write.csv(vast, paste(dirout, "/ProcessedTable.csv", 
+                sep = ""))
+        }
+        else if (scaling == "Range" | scaling == "range" | scaling == 
+            "R" | scaling == "r") {
+            pwd.n = paste(getwd(), path, "/Preprocessing_Data_", scaling, 
+                "/ProcessedTable.csv", sep = "")
+            x <- read.csv(pwd.n, sep = ",", header = TRUE)
+            x.x <- x[, 2:ncol(x)]
+            rownames(x.x) <- x[, 1]
+            x.areanorm.tc <- scale(x.x, center = TRUE, scale = FALSE)
+            range = c()
+            for (i in 1:ncol(x.x)) {
+                den = c()
+                den = max(x.x[, i]) - min(x.x[, i])
+                range = matrix(c(range, den), nrow = 1)
+            }
+            uni.exp.all = matrix(rep(1, nrow(x.areanorm.tc)), 
+                ncol = 1)
+            range.m = uni.exp.all %*% range
+            all.range = x.areanorm.tc/range.m
+            write.csv(all.range, paste(dirout, "/ProcessedTable.csv", 
+                sep = ""))
+        }
+        else if (scaling == "Median" | scaling == "median" | 
+            scaling == "M" | scaling == "m") {
+            pwd.n = paste(getwd(),path,  "/Preprocessing_Data_", scaling, 
+                "/ProcessedTable.csv", sep = "")
+            x <- read.csv(pwd.n, sep = ",", header = TRUE)
+            x.x <- x[, 2:ncol(x)]
+            rownames(x.x) <- x[, 1]
+            x.areanorm.tc <- scale(x.x, center = TRUE, scale = FALSE)
+            all.med <- matrix(apply(x.areanorm.tc, 2, median), 
+                nrow = 1)
+            uni.exp.all = matrix(rep(1, nrow(x.areanorm.tc)), 
+                ncol = 1)
+            all.sdm = uni.exp.all %*% all.med
+            all.med <- x.areanorm.tc/all.sdm
+            write.csv(all.med, paste(dirout, "/ProcessedTable.csv", 
+                sep = ""))
+        }
+    } else {
+        pwd.n = paste(getwd(), path, "/Preprocessing_Data_", scaling, 
+            "/ProcessedTable.csv", sep = "")
+        x <- read.csv(pwd.n, sep = ",", header = TRUE)
+        x.x <- x[, 2:ncol(x)]
+        rownames(x.x) <- x[, 1]
+        x.c = scale(x.x, scale = FALSE)
+        write.csv(x.c, paste(dirout, "/ProcessedTable.csv", sep = ""))
+    }
+    pwd.scal = paste(getwd(), path, "/Preprocessing_Data_", scaling, 
+        "/ProcessedTable.csv", sep = "")
+    x <- read.csv(pwd.scal, sep = ",", header = TRUE)
+    x.x <- x[, 2:ncol(x)]
+    rownames(x.x) <- x[, 1]
+    pc.all <- prcomp(x.x, center = FALSE, scale = FALSE)
+    p.v <- matrix(((pc.all$sdev^2)/(sum(pc.all$sdev^2))), ncol = 1)
+    p.i <- round(p.v * 100, 1)
+    p.z <- matrix(1, nrow(p.i), 1)
+    p.f <- cbind(p.i, p.z)
+    dirout.pca = paste(getwd(),path, "/PCA_Data_", scaling, "/", sep = "")
+    dir.create(dirout.pca)
+    write.csv(p.f, paste(dirout.pca, "PCA_P", sep = ""))
+    write.csv(pc.all$x, paste(dirout.pca, "PCA_ScoreMatrix.csv", 
+        sep = ""))
+    write.csv(pc.all$rotation, paste(dirout.pca, "PCA_LoadingsMatrix.csv", 
+        sep = ""))
+    pwd.score = paste(getwd(), path, "/PCA_Data_", scaling, "/", "PCA_ScoreMatrix.csv", 
+        sep = "")
+    Score <- read.csv(pwd.score, sep = ",", header = TRUE)
+    Score.x <- Score[, 2:ncol(Score)]
+    rownames(Score.x) <- Score[, 1]
+    pwd.load = paste(getwd(), path, "/PCA_Data_", scaling, "/", "PCA_LoadingsMatrix.csv", 
+        sep = "")
+    Loading <- read.csv(pwd.load, sep = ",", header = TRUE)
+    Loading.x <- Loading[, 2:ncol(Loading)]
+    rownames(Loading.x) <- Loading[, 1]
+    pwd.pvar = paste(getwd(),path, "/PCA_Data_", scaling, "/", "PCA_P", 
+        sep = "")
+    Pvar <- read.csv(pwd.pvar, sep = ",", header = TRUE)
+    Pvar.x <- Pvar[, 2:ncol(Pvar)]
+    rownames(Pvar.x) <- Pvar[, 1]
+    barplot(Pvar.x[, 1], xlab = "Principal Components", ylab = "Proportion of Variance explained", 
+        main = "Screeplot", ylim = c(0, 100))
+    scree = paste(dirout.pca, "Screeplot", scaling, ".pdf", sep = "")
+    dev.copy2pdf(file = scree)
+    tutticolors = matrix(c(1, 2, 3, 4, 5, 6, 7, 8, "rosybrown4", 
+        "green4", "navy", "purple2", "orange", "pink", "chocolate2", 
+        "coral3", "khaki3", "thistle", "turquoise3", "palegreen1", 
+        "moccasin", "olivedrab3", "azure4", "gold3", "deeppink"), 
+        ncol = 1)
+    col = c()
+    for (i in 1:nrow(k)) {
+        col = c(col, tutticolors[k[i, ], ])
+    }
+    pairs = c()
+    if (ncol(Score.x) >= 10) {
+        pairs = c(10)
+    } else {
+        pairs = c(ncol(Score.x))
+    }
+    pairs(Score.x[, 1:pairs], col = col)
+    dev.new()
+    pairs = paste(dirout.pca, "First_10_Components_", scaling, 
+        ".pdf", sep = "")
+    dev.copy2pdf(file = pairs)
+    K = paste(getwd(), path, "/Preprocessing_Data_", scaling, "/class.csv", 
+        sep = "")
+    write.csv(k, K)
+    x.nn = cbind(k, pc.all$x)
+    sorted = x.nn[order(x.nn[, 1]), ]
+    g = c()
+    for (i in 1:nrow(sorted)) {
+        if (any(g == sorted[i, 1])) {
+            g = g
+        } else {
+            g = matrix(c(g, sorted[i, 1]), ncol = 1)
+        }
+    }
+    dirout.g = paste(getwd(), path, "/Groups", sep = "")
+    dir.create(dirout.g)
+    for (i in 1:nrow(g)) {
+        vuota <- c()
+        fin = matrix(rep(NA, ncol(sorted)), nrow = 1)
+        for (j in 1:nrow(sorted)) {
+            if (sorted[j, 1] == i) {
+                vuota <- matrix(sorted[j, ], nrow = 1)
+                rownames(vuota) = rownames(sorted)[j]
+                fin = rbind(fin, vuota)
+            }
+        }
+        nam = paste("r", i, sep = ".")
+        n = matrix(fin[-1, ], ncol = ncol(sorted))
+        n.x = matrix(n[, -1], ncol = ncol(sorted) - 1)
+        name = as.matrix(assign(nam, n.x))
+        outputfileg = paste("r.", i, ".csv", sep = "")
+        write.csv(name, paste(dirout.g, outputfileg, sep = "/"), 
+            row.names = FALSE)
+    }
+    all.F = c()
+    NoF = nrow(g)
+    for (i in 1:NoF) {
+        for (j in 1:NoF) {
+            if (i < j) {
+                ni = paste("r.", i, ".csv", sep = "")
+                nj = paste("r.", j, ".csv", sep = "")
+                pwdi = paste(getwd(), "/Groups/", ni, sep = "")
+                pwdj = paste(getwd(), "/Groups/", nj, sep = "")
+                I = read.csv(pwdi, header = TRUE)
+                J = read.csv(pwdj, header = TRUE)
+                fin = ncol(I) - 1
+                library(rrcov)
+                ntest = factorial(fin)/(2 * (factorial(fin - 
+                  2)))
+                T2 = c()
+                nam = c()
+                for (k in 1:fin) {
+                  for (l in 1:fin) {
+                    if (k < l) {
+                      Ikl = cbind(I[, k], I[, l])
+                      Jkl = cbind(J[, k], J[, l])
+                      t1 = matrix(T2.test(Ikl, Jkl)$statistic, ncol=2)
+t2 = c(t1[,1])
+                      T2 = matrix(c(T2, t2), ncol = 1)
+                      rownam = paste("PC", k, "vsPC", l, sep = "")
+                      nam = matrix(c(nam, rownam), ncol = 1)
+                    }
+                  }
+                }
+                pair = paste("T2statistic_", i, "vs", j, sep = "")
+                rownames(T2) = nam
+                colnames(T2)[1] = pair
+                num = nrow(I) + nrow(J) - 3
+                den = 2 * (nrow(I) + nrow(J) - 2)
+                coeff = num/den
+                Fval = T2 * coeff
+                Fvalname = paste("F_statistic_", i, "vs", j, 
+                  sep = "")
+                colnames(Fval)[1] = Fvalname
+                Fpval = pf(Fval, 2, num)
+                Fname = paste("F_pvalue_", i, "vs", j, sep = "")
+                colnames(Fpval)[1] = Fname
+                Fpvalfin = 1 - Fpval
+                all.F = matrix(c(all.F, Fpvalfin))
+            }
+        }
+    }
+    varp = c()
+    for (k in 1:fin) {
+        for (l in 1:fin) {
+            if (k < l) {
+                varp = matrix(c(varp, p.f[k, 1] + p.f[l, 1]), 
+                  ncol = 1)
+            }
+        }
+    }
+    ncomparison = factorial(nrow(g))/(2 * (factorial(nrow(g) - 
+        2)))
+    all.F = matrix(all.F, ncol = ncomparison)
+    rownames(all.F) = nam
+    allFpwd = paste(getwd(),path, "/PCA_Data_", scaling, "/PCs_Fstatistic.csv", 
+        sep = "")
+    write.csv(all.F, allFpwd, row.names = FALSE)
+    sum = matrix(rowSums(all.F), ncol = 1)
+    all = data.frame(nam, sum, varp)
+    colnames(all)[3] = "Variance(%)"
+    colnames(all)[2] = "Sum_p_values"
+    colnames(all)[1] = "Pair_of_PCs"
+    ord.sum = all[order(all[, 2]), ]
+    colnames(ord.sum)[3] = "Variance(%)"
+    colnames(ord.sum)[2] = "Sum_p_values(F_statistics)"
+    colnames(ord.sum)[1] = "Pair_of_PCs"
+    rownames(ord.sum) = 1:nrow(ord.sum)
+    rankFpwd = paste(getwd(), path, "/PCA_Data_", scaling, "/PCs_ranked_Fpvalue.csv", 
+        sep = "")
+    write.csv(ord.sum, rankFpwd, row.names = FALSE)
+    print("Pairs of Principal Components giving highest statistical cluster separation are:")
+    print(ord.sum[1:5, ])
+}
+
+Plot.pca.score <- function(path, pcx,pcy,scaling) {
+ score = paste(getwd(),  path,"/PCA_Data_", scaling, "/PCA_ScoreMatrix.csv", sep="")
+ ppppp = paste(getwd(), path,"/PCA_Data_", scaling, "/PCA_P", sep="")
+ Score <- read.csv(score, sep=",", header=TRUE)
+ Score.x <- Score[,2:ncol(Score)]
+ rownames(Score.x) <- Score[,1]
+ pwdK = paste(getwd(),path, "/Preprocessing_Data_", scaling, "/class.csv", sep="")
+ k = read.csv(pwdK)
+ Pvar <- read.csv(ppppp, sep=",", header=TRUE)
+ Pvar.x <- Pvar[,2:ncol(Pvar)]
+ rownames(Pvar.x) <- Pvar[,1]
+ pca <- paste("PC",pcx," (",Pvar[pcx,2],") %")
+ pcb <- paste("PC",pcy," (",Pvar[pcy,2],")%")
+ cum = Pvar[pcx,2] + Pvar[pcy,2]
+ xlab = c(pca)
+ ylab = c(pcb)
+ lim = c()
+ max.pc1 = 1.3*(max(abs(Score.x[,pcx])))
+ max.pc2 = 1.3*(max(abs(Score.x[,pcy])))
+ if (max.pc1 > max.pc2) {lim = c(-max.pc1,max.pc1)} else {lim = c(-max.pc2,max.pc2)}
+ tutticolors=matrix(c(1,2,3,4,5,6,7,8,"rosybrown4", "green4", "navy", "purple2", "orange", "pink", "chocolate2", "coral3", "khaki3","thistle","turquoise3","palegreen1","moccasin","olivedrab3","azure4","gold3","deeppink"), ncol=1)
+     col=c()
+     for(i in 1:nrow(k)) {
+      col=c(col, tutticolors[k[i,2],])
+     }
+ dev.new()
+ plot(Score.x[,pcx], Score.x[,pcy], col=col, xlab = xlab, ylab = ylab, xlim = lim, ylim = lim, pch=19, sub = paste("Cumulative Proportion of Variance Explained = ", cum, "%", sep=""), main = paste("PCA Score Plot (", scaling, ")", sep=""))
+ axis(1, at=lim*2, pos=c(0,0), labels=FALSE, col="grey", lwd=0.7)
+ axis(2, at=lim*2, pos=c(0,0), labels=FALSE, col="grey", lwd=0.7)
+ library(car)
+ dataEllipse(Score.x[,pcx], Score.x[,pcy], levels = c(0.95), add=TRUE, col = "black", lwd = 0.4, plot.points=FALSE, center.cex=0.2)
+ text(Score.x[,pcx], Score.x[,pcy], col=col, cex=0.5, labels=rownames(Score.x), pos=1)
+ D <- paste(getwd(),path, "/PCA_Data_", scaling, "/ScorePlot_PC",pcx,"vsPC",pcy,".pdf", sep="")
+ dev.copy2pdf(file=D)
+}
+
+```
+
 ```{r Heatmap, warning= FALSE, message=FALSE}
 #Input is the matrix of the metabolomics data (rownames= samples and columnnames=metabolites)
 #cols1 = color code for the samples if applicable
@@ -720,29 +1150,29 @@ Total pools of the intracellular metabolites are used.\
 ```{r, message=FALSE, warning=FALSE}
 #Load the data:
 ##Human:
-data_H <- read.csv("Input/20211212_Amin_humanbrain_HAP01.csv", check.names=FALSE)%>%
+data_H <- read.csv("Input/Amin_human_final.csv", check.names=FALSE)%>%
   separate("timepoint",c("timepoint_min","X"),sep=" ", remove=FALSE)
 data_H <-data_H%>%
   unite("Sample",c("Patient_Number","timepoint"),sep="_", remove=FALSE)%>%
   unite("UniqueID",c("Sample","analytical_replicate"),sep="_", remove=FALSE)
-data_H <-data_H[,c(1,3:4,2,5:6,8:241)]
+data_H <-data_H[,c(1,3:4,2,5:6,8:235)]
 data_H[, c(6:8)] <- sapply(data_H[, c(6:8)], as.numeric)
 
 ##Mouse:
-data_M <- read.csv("Input/20211210_Amin_mousebrain_HAP02.csv", check.names=FALSE)%>%
+data_M <- read.csv("Input/Amin_mouse_final.csv", check.names=FALSE)%>%
   separate("timepoint",c("timepoint_min","X"),sep=" ", remove=FALSE)
 data_M <-data_M%>%
   unite("Sample",c("Mouse_Number","timepoint"),sep="_", remove=FALSE)%>%
   unite("UniqueID",c("Sample","analytical_replicate"),sep="_", remove=FALSE)
-data_M <-data_M[,c(1,3:4,2,7:8, 5:6,10:286)]
-data_M[, c(6:285)] <- sapply(data_M[, c(6:285)], as.numeric)
+data_M <-data_M[,c(1,3:4,2,7:8, 5:6,10:274)]
+data_M[, c(6:273)] <- sapply(data_M[, c(6:273)], as.numeric)
 
 #Prepare the matrix
-x_H <- data_H[,10:240]
+x_H <- data_H[,10:234]
 row.names(x_H) <- data_H$Code
 x_H <- replace(x_H,x_H == 0,NA)
 
-x_M <- data_M[,9:285]
+x_M <- data_M[,9:273]
 row.names(x_M) <- data_M$Code
 x_M <- replace(x_M,x_M == 0,NA)#Replace 0 with NA
 ```
@@ -782,24 +1212,24 @@ This step is important to detect outliers and find patterns in the data.
 Perform ["muma"](https://cran.r-project.org/web/packages/muma/muma.pdf) (Metabolomics Univariate and Multivariate Analysis) analysis for outliers. This uses the Hotellin's T2 distribution test to estimate outliers (Here: Pareto scaling used).
 ```{r, eval=FALSE}
 Muma_Intra_H <- H_norm
-Muma_Intra_H <- Muma_Intra_H[,c(2,8,10:240)]
+Muma_Intra_H <- Muma_Intra_H[,c(2,8,10:234)]
 names(Muma_Intra_H)[names(Muma_Intra_H) == "UniqueID"] <- "sample"#Rename the rowname
 names(Muma_Intra_H)[names(Muma_Intra_H) == "analytical_replicate"] <- "class"#Rename the rowname
 write.csv(Muma_Intra_H, "Output/DataTables/Muma_Intra_H.csv", row.names = FALSE)
 
-library(muma)#Only installs with R version 4.0.5 or older and has been run in R v4.0.5 with muma v.1.4.
-
 explore.data("Output/DataTables/Muma_Intra_H.csv",#Data need to be imported as a .csv
+             path="/Muma Analysis/Human",
              "Pareto",#scaling is performed
              normalize=FALSE,
              imputation = FALSE)
-getwd()
-#Test for Outlier based on geometric distances of each point in the PCA score plot from a 95:
-Plot.pca(1,#an integer indicating the principal component to be plotted in x
-         2,#an integer indicating the principal component to be plotted in y
-         "Pareto",#scaling previously specified in the function ’explore.data’
-         test.outlier=TRUE)#geometric outlier testing
+
+#Test for Outlier based on geometric distances of each point in the PCA score plot:
+Plot.pca.score(path="/Muma Analysis/Human",
+               1,#an integer indicating the principal component to be plotted in x
+               2,#an integer indicating the principal component to be plotted in y
+               "Pareto")#scaling previously specified in the function ’explore.data’
 ```
+
 \
 The two analytical measurements of Patient 7, timepoint 0min are close to the border:\
 ![](Muma Analysis/Human_ScorePlot_PC1vsPC2.png)
@@ -810,7 +1240,7 @@ The overview heatmap including all metabolites shows that Patient 7, timepoint 0
 dataHeat <- H_norm
 row.names(dataHeat) <- dataHeat$UniqueID
 dim(dataHeat)
-Input_dataHeat <- dataHeat[,10:240]
+Input_dataHeat <- dataHeat[,10:234]
 
 #Prepare sample color code:
 cols1 <- case_when(dataHeat$Patient_Number == "P1"  ~ 'blue',
@@ -849,7 +1279,7 @@ PCA_Data<-H_norm_out %>%
                                   TRUE ~ 'X'))
 row.names(PCA_Data) <- PCA_Data$UniqueID
 
-PCA_Data_m<- PCA_Data[,10:240]
+PCA_Data_m<- PCA_Data[,10:234]
 PCA_Data_m <- apply(as.matrix(PCA_Data_m), 2, as.numeric)
 row.names(PCA_Data_m) <- PCA_Data$UniqueID
 
@@ -876,21 +1306,22 @@ PCA_Gradient_NoLoadings (InputMatrix= PCA_Data_m, OutputPlotName= "Human_ColourT
 ### Muma analysis
 ```{r, eval=FALSE}
 Muma_Intra_M <- M_norm
-Muma_Intra_M <- Muma_Intra_M[,c(2,8,9:220)]
+Muma_Intra_M <- Muma_Intra_M[,c(2,8,9:273)]
 names(Muma_Intra_M)[names(Muma_Intra_M) == "UniqueID"] <- "sample"#Rename the rowname
 names(Muma_Intra_M)[names(Muma_Intra_M) == "analytical_replicate"] <- "class"#Rename the rowname
 write.csv(Muma_Intra_M, "Output/DataTables/Muma_Intra_M.csv", row.names = FALSE)
 
 explore.data("Output/DataTables/Muma_Intra_M.csv",#Data need to be imported as a .csv
+             path="/Muma Analysis/Mouse",
              "Pareto",#scaling is performed
              normalize=FALSE,
              imputation = FALSE)
-getwd()
-#Test for Outlier based on geometric distances of each point in the PCA score plot from a 95:
-Plot.pca(1,#an integer indicating the principal component to be plotted in x
-         2,#an integer indicating the principal component to be plotted in y
-         "Pareto",#scaling previously specified in the function ’explore.data’
-         test.outlier=TRUE)#geometric outlier testing
+
+#Test for Outlier based on geometric distances of each point in the PCA score plot:
+Plot.pca.score(path="/Muma Analysis/Mouse",
+               1,#an integer indicating the principal component to be plotted in x
+               2,#an integer indicating the principal component to be plotted in y
+               "Pareto")#scaling previously specified in the function ’explore.data’
 ```
 \
 We do not have any outliers.\
@@ -911,7 +1342,7 @@ PCA_Data<-M_norm%>%
                                   `analytical_replicate`== 3  ~ 'Measurement 3',
                                   TRUE ~ 'X'))
 
-PCA_Data_m<- PCA_Data[,9:285]
+PCA_Data_m<- PCA_Data[,9:273]
 PCA_Data_m <- apply(as.matrix(PCA_Data_m), 2, as.numeric)
 row.names(PCA_Data_m) <- PCA_Data$UniqueID
 
@@ -937,22 +1368,22 @@ Each sample was measured (independent injections = analytical replicates) two ti
 These results will be used for plotting individual metabolites of interest and to perform the differential metabolite analysis.\
 ```{r, warning= FALSE, message=FALSE}
 #Human
-H_Means <- (H_norm[,10:240]) %>%
+H_Means <- (H_norm[,10:234]) %>%
   group_by(H_norm$Sample) %>%
   summarise_all(funs(mean))
 H_Means <- merge(x=H_norm[,c(1,3:7,9)], y=H_Means, by.x ="Sample",by.y ="H_norm$Sample")
 H_Means <- H_Means[!duplicated(H_Means$Sample),]
-H_Means <- H_Means[,c(2,1,3:238)]
+H_Means <- H_Means[,c(2,1,3:232)]
 H_Means_out <- subset(H_Means, include =="yes")
 write.csv(H_Means_out, "Output/DataTables/Human_TIC-normalised_Means.csv", row.names = FALSE)
 
 #Mouse
-M_Means <- (M_norm[,9:285]) %>%
+M_Means <- (M_norm[,9:273]) %>%
   group_by(M_norm$Sample) %>%
   summarise_all(funs(mean))
 M_Means <- merge(x=M_norm[,c(1,3:7)], y=M_Means, by.x ="Sample",by.y ="M_norm$Sample")
 M_Means <- M_Means[!duplicated(M_Means$Sample),]
-M_Means <- M_Means[,c(2,1,3:283)]
+M_Means <- M_Means[,c(2,1,3:271)]
 write.csv(M_Means, "Output/DataTables/Mouse_TIC-normalised_Means.csv", row.names = FALSE)
 ```
 \
@@ -971,23 +1402,23 @@ Data_DMA<-H_Means_out[,-8]#remove d8-valine standard
 
 #---------------------
 ## Single Replicates for each timepoints:
-H_0min <-subset(Data_DMA,timepoint == "0 min" ,select=c(8:237))
-H_5min <-subset(Data_DMA,timepoint == "5 min" ,select=c(8:237))
-H_15min <-subset(Data_DMA,timepoint == "15 min" ,select=c(8:237))
-H_60min <-subset(Data_DMA,timepoint == "60 min" ,select=c(8:237))
-H_120min <-subset(Data_DMA,timepoint == "120 min" ,select=c(8:237))
+H_0min <-subset(Data_DMA,timepoint == "0 min" ,select=c(8:231))
+H_5min <-subset(Data_DMA,timepoint == "5 min" ,select=c(8:231))
+H_15min <-subset(Data_DMA,timepoint == "15 min" ,select=c(8:231))
+H_60min <-subset(Data_DMA,timepoint == "60 min" ,select=c(8:231))
+H_120min <-subset(Data_DMA,timepoint == "120 min" ,select=c(8:231))
 
 #---------------------
 ## Mean of the replicates:
-Data_DMA_Means <- (Data_DMA[,8:237]) %>%
+Data_DMA_Means <- (Data_DMA[,8:231]) %>%
   group_by(Data_DMA$timepoint) %>%
   summarise_all(funs(mean))
 #Extract the single conditions we want to use for the comparison
-Min0 <-Data_DMA_Means[1,2:231]
-Min5 <-Data_DMA_Means[4,2:231]
-Min15 <-Data_DMA_Means[3,2:231]
-Min60 <-Data_DMA_Means[5,2:231]
-Min120 <-Data_DMA_Means[2,2:231]
+Min0 <-Data_DMA_Means[1,2:225]
+Min5 <-Data_DMA_Means[4,2:225]
+Min15 <-Data_DMA_Means[3,2:225]
+Min60 <-Data_DMA_Means[5,2:225]
+Min120 <-Data_DMA_Means[2,2:225]
 
 #---------------------
 ## Apply function:
@@ -1070,23 +1501,23 @@ Data_DMA<-M_Means[,-7]#remove d8-valine!
 
 #---------------------
 ## Single Replicates for each timepoints:
-M_0min <-subset(Data_DMA,timepoint == "0 min" ,select=c(7:282))
-M_5min <-subset(Data_DMA,timepoint == "5 min" ,select=c(7:282))
-M_15min <-subset(Data_DMA,timepoint == "15 min" ,select=c(7:282))
-M_60min <-subset(Data_DMA,timepoint == "60 min" ,select=c(7:282))
-M_120min <-subset(Data_DMA,timepoint == "120 min" ,select=c(7:282))
+M_0min <-subset(Data_DMA,timepoint == "0 min" ,select=c(7:270))
+M_5min <-subset(Data_DMA,timepoint == "5 min" ,select=c(7:270))
+M_15min <-subset(Data_DMA,timepoint == "15 min" ,select=c(7:270))
+M_60min <-subset(Data_DMA,timepoint == "60 min" ,select=c(7:270))
+M_120min <-subset(Data_DMA,timepoint == "120 min" ,select=c(7:270))
 
 #---------------------
 ## Mean of the replicates:
-Data_DMA_Means <- (Data_DMA[,7:282]) %>%
+Data_DMA_Means <- (Data_DMA[,7:270]) %>%
   group_by(Data_DMA$timepoint) %>%
   summarise_all(funs(mean))
 #Extract the single conditions we want to use for the comparison
-MMin0 <-Data_DMA_Means[1,2:277]
-MMin5 <-Data_DMA_Means[4,2:277]
-MMin15 <-Data_DMA_Means[3,2:277]
-MMin60 <-Data_DMA_Means[5,2:277]
-MMin120 <-Data_DMA_Means[2,2:277]
+MMin0 <-Data_DMA_Means[1,2:265]
+MMin5 <-Data_DMA_Means[4,2:265]
+MMin15 <-Data_DMA_Means[3,2:265]
+MMin60 <-Data_DMA_Means[5,2:265]
+MMin120 <-Data_DMA_Means[2,2:265]
 
 #---------------------
 ## Apply function:
